@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mabooth 🎀 | Ama Photobooth</title>
+    <style>
+        /* --- GEN Z / AESTHETIC STYLING --- */
+        :root {
+            --primary: #ff85a2;
+            --secondary: #fbd3e9;
+            --accent: #ff477e;
+            --dark: #4a0e23;
+            --bg: #fff0f5;
+        }
+
+        * { box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
+        
+        body {
+            background-color: var(--bg);
+            background-image: radial-gradient(var(--secondary) 1px, transparent 1px);
+            background-size: 20px 20px;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-transform: lowercase;
+            letter-spacing: -2px;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 0px var(--secondary);
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            background: var(--dark);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        /* CONTAINER KAMERA UTAMA */
+        .booth-container {
+            background: white;
+            padding: 15px;
+            border: 3px solid var(--dark);
+            border-radius: 15px;
+            box-shadow: 8px 8px 0px var(--primary);
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        /* LIVE FRAME WRAPPER */
+        /* Ini yang akan berubah-ubah sesuai tema */
+        .video-wrapper {
+            width: 100%;
+            height: 450px; /* Lebih tinggi agar muat overlay */
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid var(--dark);
+            transition: all 0.3s ease;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            position: absolute;
+            z-index: 1;
+        }
+
+        /* OVERLAY ELEMENT UNTUK LIVE THEME */
+        .frame-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 5;
+            pointer-events: none; /* Agar klik tembus ke video */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+
+        /* --- STYLE KHUSUS TEMA LIVE --- */
+        
+        /* 1. PINK THEME */
+        .t-pink .video-wrapper {
+            border: 10px solid #ffc0cb;
+            border-radius: 20px;
+            box-shadow: inset 0 0 20px rgba(255, 105, 180, 0.5);
+        }
+        .t-pink .frame-overlay::before {
+            content: "♥ CUTE ♥";
+            font-family: 'Comic Sans MS', cursive;
+            color: #ff477e;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px white;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        .t-pink .frame-overlay::after {
+            content: "✨ mabooth ✨";
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        /* 2. MAGAZINE THEME */
+        .t-magazine .video-wrapper {
+            border: 15px solid white;
+            border-bottom: 50px solid white; /* Space for text */
+            border-radius: 0;
+        }
+        .t-magazine .frame-overlay::before {
+            content: "VOGUE";
+            font-family: 'Times New Roman', serif;
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 5px;
+            margin-top: 20px;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+
+        /* 3. ROBLOX THEME */
+        .t-roblox .video-wrapper {
+            border: 5px solid #00ff00;
+            border-radius: 0;
+            background: #000;
+        }
+        .t-roblox .frame-overlay {
+            box-shadow: inset 0 0 50px rgba(0, 255, 0, 0.2);
+        }
+        .t-roblox .frame-overlay::before {
+            content: "[ OOF! ]";
+            font-family: 'Verdana', sans-serif;
+            font-weight: bold;
+            color: #00ff00;
+            font-size: 2rem;
+            background: rgba(0,0,0,0.7);
+            padding: 5px;
+            margin-top: 10px;
+        }
+
+        /* 4. AESTHETIC DARK */
+        .t-aesthetic .video-wrapper {
+            border: 1px solid rgba(255,255,255,0.3);
+            filter: contrast(1.1);
+        }
+        .t-aesthetic .frame-overlay {
+            background: rgba(0,0,0,0.1);
+            border: 10px double rgba(255,255,255,0.5);
+        }
+        .t-aesthetic .frame-overlay::after {
+            content: "rec ●";
+            color: red;
+            font-size: 0.8rem;
+            align-self: flex-end;
+            margin: 10px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* CONTROLS */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .full-width { grid-column: span 2; }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        select, button {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--dark);
+            border-radius: 8px;
+            background: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:active { transform: translate(2px, 2px); box-shadow: none; }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 4px 4px 0px var(--dark);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            box-shadow: 3px 3px 0px var(--dark);
+        }
+
+        /* HASIL FOTO */
+        .result-area {
+            margin-top: 20px;
+            display: none; 
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        canvas {
+            max-width: 100%;
+            border: 2px solid var(--dark);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        /* COUNTDOWN & FLASH */
+        #countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--primary);
+            display: none;
+            z-index: 20;
+        }
+
+        .flash {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>mabooth 🎀</h1>
+    <div class="tagline">aesthetic . cute . gen-z</div>
+
+    <div class="booth-container" id="boothWrapper">
+        
+        <div class="video-wrapper">
+            <video id="video" autoplay playsinline></video>
+            
+            <div class="frame-overlay" id="frameOverlay"></div>
+
+            <div id="countdown">3</div>
+            <div class="flash" id="flash"></div>
+        </div>
+
+        <div class="controls">
+            <div>
+                <label>🎞️ Jumlah Frame</label>
+                <select id="frameSelect">
+                    <option value="2">2 Frames</option>
+                    <option value="3" selected>3 Frames</option>
+                    <option value="4">4 Frames</option>
+                </select>
+            </div>
+            <div>
+                <label>✨ Tema Frame</label>
+                <select id="themeSelect" onchange="updateLiveFrame()">
+                    <option value="simple">Simple White</option>
+                    <option value="pink">Cute Pink</option>
+                    <option value="magazine">Magazine Cover</option>
+                    <option value="roblox">Roblox Style</option>
+                    <option value="aesthetic">Dark Aesthetic</option>
+                </select>
+            </div>
+            
+            <div class="full-width">
+                <label>🎨 Efek Kamera</label>
+                <select id="filterSelect" onchange="applyFilter()">
+                    <option value="none">Normal</option>
+                    <option value="grayscale(100%)">Black & White</option>
+                    <option value="sepia(60%)">Vintage Sepia</option>
+                    <option value="brightness(1.2) contrast(1.1) saturate(1.2)">Glow Up</option>
+                    <option value="hue-rotate(90deg)">Alien Vibe</option>
+                    <option value="blur(1px)">Soft Blur</option>
+                </select>
+            </div>
+
+            <button class="btn-secondary" onclick="switchCamera()">🔄 Switch Cam</button>
+            <button class="btn-primary full-width" onclick="startPhotoSequence()">📸 TAKE PHOTO</button>
+        </div>
+    </div>
+
+    <div class="result-area" id="resultArea">
+        <h2>✨ Your Mabooth ✨</h2>
+        <canvas id="canvas"></canvas>
+        <button class="btn-primary" onclick="downloadImage()">💾 Download .JPG</button>
+        <br>
+        <button class="btn-secondary" onclick="resetBooth()">🔄 Foto Lagi</button>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const flash = document.getElementById('flash');
+        const countdownEl = document.getElementById('countdown');
+        const resultArea = document.getElementById('resultArea');
+        const boothWrapper = document.getElementById('boothWrapper');
+        
+        let currentStream;
+        let facingMode = 'user'; 
+        let capturedImages = [];
+        
+        // 1. Inisialisasi Kamera
+        async function startCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            try {
+                const constraints = { 
+                    video: { 
+                        facingMode: facingMode,
+                        aspectRatio: 3/4 
+                    } 
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                currentStream = stream;
+            } catch (err) {
+                alert("Gagal akses kamera: " + err);
+            }
+        }
+
+        function switchCamera() {
+            facingMode = facingMode === 'user' ? 'environment' : 'user';
+            startCamera();
+        }
+
+        // 2. Fungsi Baru: UPDATE LIVE FRAME
+        function updateLiveFrame() {
+            const theme = document.getElementById('themeSelect').value;
+            
+            // Hapus semua class tema sebelumnya
+            boothWrapper.classList.remove('t-simple', 't-pink', 't-magazine', 't-roblox', 't-aesthetic');
+            
+            // Tambahkan class tema yang baru dipilih
+            boothWrapper.classList.add('t-' + theme);
+        }
+
+        // 3. Apply Filter ke Video
+        function applyFilter() {
+            const filter = document.getElementById('filterSelect').value;
+            video.style.filter = filter;
+        }
+
+        // 4. Logika Foto
+        async function startPhotoSequence() {
+            capturedImages = [];
+            const count = parseInt(document.getElementById('frameSelect').value);
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            for (let i = 0; i < count; i++) {
+                await doCountdown(3);
+                snapPhoto();
+                await new Promise(r => setTimeout(r, 1000));
+            }
+
+            generateStrip();
+        }
+
+        function doCountdown(seconds) {
+            return new Promise(resolve => {
+                countdownEl.style.display = 'block';
+                let counter = seconds;
+                countdownEl.innerText = counter;
+                
+                const interval = setInterval(() => {
+                    counter--;
+                    if (counter > 0) {
+                        countdownEl.innerText = counter;
+                    } else {
+                        clearInterval(interval);
+                        countdownEl.style.display = 'none';
+                        resolve();
+                    }
+                }, 1000);
+            });
+        }
+
+        function snapPhoto() {
+            flash.style.opacity = 1;
+            setTimeout(() => flash.style.opacity = 0, 200);
+
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = video.videoWidth;
+            tempCanvas.height = video.videoHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+
+            const filter = document.getElementById('filterSelect').value;
+            tempCtx.filter = filter;
+
+            if (facingMode === 'user') {
+                tempCtx.translate(tempCanvas.width, 0);
+                tempCtx.scale(-1, 1);
+            }
+
+            tempCtx.drawImage(video, 0, 0, tempCanvas.width, tempCanvas.height);
+            capturedImages.push(tempCanvas);
+        }
+
+        // 5. Generate Hasil (Diperbarui agar sinkron dengan live theme)
+        function generateStrip() {
+            const theme = document.getElementById('themeSelect').value;
+            const photoCount = capturedImages.length;
+            const singleW = 400; 
+            const singleH = (video.videoHeight / video.videoWidth) * singleW; 
+            
+            const padding = 30;
+            const headerHeight = 80;
+            const footerHeight = 60;
+            const gap = 20;
+
+            const totalHeight = headerHeight + (singleH * photoCount) + (gap * (photoCount - 1)) + footerHeight + (padding * 2);
+            
+            canvas.width = singleW + (padding * 2);
+            canvas.height = totalHeight;
+
+            let bgColor, textColor, fontType, bottomText;
+            bottomText = "mabooth " + new Date().toLocaleDateString();
+
+            if (theme === 'simple') {
+                bgColor = '#ffffff'; textColor = '#000'; fontType = 'Courier New';
+            } else if (theme === 'pink') {
+                bgColor = '#ffc0cb'; textColor = '#ff477e'; fontType = 'Comic Sans MS';
+            } else if (theme === 'magazine') {
+                bgColor = '#f0f0f0'; textColor = '#000'; fontType = 'Times New Roman';
+            } else if (theme === 'roblox') {
+                bgColor = '#3d3d3d'; textColor = '#ffffff'; fontType = 'Verdana';
+                bottomText = "OOF! mabooth";
+            } else if (theme === 'aesthetic') {
+                bgColor = '#1a1a1a'; textColor = '#aaaaaa'; fontType = 'Courier New';
+            }
+
+            // Draw Background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Header
+            ctx.fillStyle = textColor;
+            ctx.font = `bold 30px ${fontType}`;
+            ctx.textAlign = 'center';
+            
+            let headerText = "MABOOTH";
+            if(theme === 'magazine') headerText = "VOGUE";
+            if(theme === 'roblox') headerText = "BLOX CAM";
+            if(theme === 'pink') headerText = "♥ CUTE ♥";
+            
+            ctx.fillText(headerText, canvas.width / 2, 55);
+
+            if (theme === 'magazine') {
+                ctx.fillRect(20, 65, canvas.width - 40, 2);
+            }
+
+            // Loop Photos
+            let currentY = headerHeight + padding;
+            
+            capturedImages.forEach((img) => {
+                // Border khusus Roblox di hasil akhir
+                if (theme === 'roblox') {
+                    ctx.strokeStyle = '#00ff00';
+                    ctx.lineWidth = 5;
+                    ctx.strokeRect(padding - 5, currentY - 5, singleW + 10, singleH + 10);
+                }
+                
+                ctx.drawImage(img, padding, currentY, singleW, singleH);
+                currentY += singleH + gap;
+            });
+
+            // Draw Footer
+            ctx.fillStyle = textColor;
+            ctx.font = `15px ${fontType}`;
+            ctx.fillText(bottomText, canvas.width / 2, canvas.height - 25);
+
+            resultArea.style.display = 'flex';
+            resultArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.download = `mabooth-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function resetBooth() {
+            resultArea.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Start
+        window.addEventListener('load', () => {
+            startCamera();
+            updateLiveFrame(); // Set frame awal saat load
+        });
+
+    </script>
+</body>
+</html>
